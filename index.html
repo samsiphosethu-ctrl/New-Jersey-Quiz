@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NJ Cannabis Quiz</title>
+<style>
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: #fff;
+}
+* { box-sizing: border-box; }
+#quiz-wrap {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 32px 20px 40px;
+}
+#quiz-intro {
+  background: #1B3A2F;
+  border-radius: 16px;
+  padding: 32px 28px;
+  text-align: center;
+  margin-bottom: 8px;
+}
+#quiz-intro h2 {
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 10px;
+  letter-spacing: -0.3px;
+}
+#quiz-intro p {
+  color: rgba(255,255,255,0.75);
+  font-size: 15px;
+  margin: 0 0 22px;
+  line-height: 1.55;
+}
+#start-btn {
+  background: #fff;
+  color: #1B3A2F;
+  border: none;
+  border-radius: 100px;
+  padding: 13px 32px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.12s, opacity 0.12s;
+}
+#start-btn:hover { opacity: 0.88; }
+#start-btn:active { transform: scale(0.97); }
+ 
+#quiz-card {
+  display: none;
+  background: #fff;
+  border: 1.5px solid #e0e8e4;
+  border-radius: 16px;
+  padding: 28px 24px 24px;
+}
+.q-progress-bar {
+  height: 4px;
+  background: #e0e8e4;
+  border-radius: 100px;
+  margin-bottom: 22px;
+  overflow: hidden;
+}
+.q-progress-fill {
+  height: 100%;
+  background: #1B3A2F;
+  border-radius: 100px;
+  transition: width 0.35s ease;
+}
+.q-counter {
+  font-size: 12px;
+  font-weight: 600;
+  color: #5a7a6e;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.q-text {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.45;
+  margin: 0 0 20px;
+}
+.q-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.q-opt {
+  background: #f5f8f6;
+  border: 1.5px solid #e0e8e4;
+  border-radius: 12px;
+  padding: 13px 16px;
+  font-size: 15px;
+  color: #1a1a1a;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  font-weight: 500;
+}
+.q-opt:hover:not(:disabled) { border-color: #1B3A2F; background: #eaf2ec; }
+.q-opt:active:not(:disabled) { transform: scale(0.99); }
+.q-opt.correct { background: #e6f4ec; border-color: #1B3A2F; color: #1B3A2F; }
+.q-opt.wrong { background: #fbeaea; border-color: #d95c5c; color: #a33030; }
+.q-opt.reveal-correct { background: #e6f4ec; border-color: #1B3A2F; color: #1B3A2F; }
+.q-opt:disabled { cursor: default; }
+ 
+.q-feedback {
+  display: none;
+  margin-top: 16px;
+  padding: 13px 15px;
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+.q-feedback.correct { background: #e6f4ec; color: #1B3A2F; }
+.q-feedback.wrong { background: #fbeaea; color: #a33030; }
+ 
+.q-next-btn {
+  display: none;
+  margin-top: 18px;
+  width: 100%;
+  background: #1B3A2F;
+  color: #fff;
+  border: none;
+  border-radius: 100px;
+  padding: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.12s, transform 0.1s;
+}
+.q-next-btn:hover { opacity: 0.88; }
+.q-next-btn:active { transform: scale(0.98); }
+ 
+#quiz-result {
+  display: none;
+  background: #1B3A2F;
+  border-radius: 16px;
+  padding: 36px 28px 32px;
+  text-align: center;
+}
+#quiz-result .score-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  font-size: 40px;
+  font-weight: 800;
+  border-radius: 16px;
+  padding: 10px 28px;
+  margin-bottom: 18px;
+  letter-spacing: -1px;
+}
+#quiz-result h3 {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+#quiz-result p {
+  color: rgba(255,255,255,0.75);
+  font-size: 15px;
+  margin: 0 0 24px;
+  line-height: 1.55;
+}
+#quiz-result .result-btns {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+#quiz-result .btn-white {
+  background: #fff;
+  color: #1B3A2F;
+  border: none;
+  border-radius: 100px;
+  padding: 12px 26px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.12s;
+  text-decoration: none;
+  display: inline-block;
+}
+#quiz-result .btn-white:hover { opacity: 0.88; }
+#quiz-result .btn-outline {
+  background: transparent;
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.45);
+  border-radius: 100px;
+  padding: 12px 26px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+#quiz-result .btn-outline:hover { background: rgba(255,255,255,0.1); }
+</style>
+</head>
+<body>
+ 
+<div id="quiz-wrap">
+ 
+  <div id="quiz-intro">
+    <h2>How much do you know about cannabis in NJ?</h2>
+    <p>Test your knowledge of hemp law, THCa, and how online cannabis shopping works in New Jersey.</p>
+    <button id="start-btn" onclick="startQuiz()">Take the quiz</button>
+  </div>
+ 
+  <div id="quiz-card">
+    <div class="q-progress-bar"><div class="q-progress-fill" id="progress-fill"></div></div>
+    <div class="q-counter" id="q-counter"></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="q-options" id="q-options"></div>
+    <div class="q-feedback" id="q-feedback"></div>
+    <button class="q-next-btn" id="q-next-btn" onclick="nextQuestion()">Next</button>
+  </div>
+ 
+  <div id="quiz-result">
+    <div class="score-badge" id="result-score"></div>
+    <h3 id="result-title"></h3>
+    <p id="result-msg"></p>
+    <div class="result-btns">
+      <button class="btn-outline" onclick="restartQuiz()">Try again</button>
+      <a class="btn-white" href="https://mood.com/shop" target="_blank">Shop Mood</a>
+    </div>
+  </div>
+ 
+</div>
+ 
+<script>
+var questions = [
+  {
+    q: "Under the 2018 Farm Bill, how much Delta-9 THC can a hemp-derived product contain to remain federally legal?",
+    opts: ["No more than 0.3% by dry weight", "No more than 3% by dry weight", "No more than 1% by dry weight", "Delta-9 THC is fully banned in hemp"],
+    correct: 0,
+    feedback: "Correct! The 2018 Farm Bill set the federal limit at 0.3% Delta-9 THC by dry weight. Products that meet this standard — like Mood's — are federally legal."
+  },
+  {
+    q: "What happens to THCa when it's heated?",
+    opts: ["It becomes CBD", "It converts into Delta-9 THC", "It becomes inactive", "It evaporates with no effect"],
+    correct: 1,
+    feedback: "Exactly! THCa is the non-activated precursor to THC. Applying heat — like when smoking — converts it into Delta-9 THC, producing the effects associated with cannabis."
+  },
+  {
+    q: "Do you need a medical card to order hemp-derived cannabis products from Mood?",
+    opts: ["Yes, always", "Only for flower products", "No — anyone 21+ can order", "Only if you live in a restricted state"],
+    correct: 2,
+    feedback: "Nope! Because Mood's products are federally legal hemp-derived products, anyone 21 and over can order online — no medical card, no registration required."
+  },
+  {
+    q: "Which term is NOT an approved way to refer to cannabis under Mood's brand guidelines?",
+    opts: ["Hemp", "Weed", "Marijuana", "Cannabis"],
+    correct: 2,
+    feedback: "Under the 2018 Farm Bill, \"marijuana\" refers to federally illegal cannabis containing over 0.3% Delta-9 THC. It also carries outdated cultural connotations, so Mood avoids it entirely."
+  },
+  {
+    q: "What makes Mood different from a licensed dispensary in New Jersey?",
+    opts: [
+      "Mood only sells CBD products with no THC",
+      "Mood operates a chain of NJ storefronts",
+      "Mood ships federally legal hemp products online — no storefront or state license required",
+      "Mood requires a valid NJ medical card to purchase"
+    ],
+    correct: 2,
+    feedback: "Right! Mood isn't a state-licensed dispensary. We sell federally legal, hemp-derived products online and ship them directly to customers — no storefront, no card, no line."
+  }
+];
+ 
+var current = 0;
+var score = 0;
+var answered = false;
+ 
+function startQuiz() {
+  document.getElementById('quiz-intro').style.display = 'none';
+  document.getElementById('quiz-card').style.display = 'block';
+  renderQuestion();
+}
+ 
+function renderQuestion() {
+  answered = false;
+  var q = questions[current];
+  var total = questions.length;
+ 
+  document.getElementById('progress-fill').style.width = ((current / total) * 100) + '%';
+  document.getElementById('q-counter').textContent = 'Question ' + (current + 1) + ' of ' + total;
+  document.getElementById('q-text').textContent = q.q;
+ 
+  var optionsEl = document.getElementById('q-options');
+  optionsEl.innerHTML = '';
+  q.opts.forEach(function(opt, i) {
+    var btn = document.createElement('button');
+    btn.className = 'q-opt';
+    btn.textContent = opt;
+    btn.onclick = function() { selectAnswer(i); };
+    optionsEl.appendChild(btn);
+  });
+ 
+  var fb = document.getElementById('q-feedback');
+  fb.style.display = 'none';
+  fb.className = 'q-feedback';
+  fb.textContent = '';
+ 
+  var nextBtn = document.getElementById('q-next-btn');
+  nextBtn.style.display = 'none';
+  nextBtn.textContent = current < questions.length - 1 ? 'Next question' : 'See my results';
+}
+ 
+function selectAnswer(index) {
+  if (answered) return;
+  answered = true;
+ 
+  var q = questions[current];
+  var opts = document.querySelectorAll('.q-opt');
+ 
+  opts.forEach(function(btn) { btn.disabled = true; });
+ 
+  if (index === q.correct) {
+    opts[index].classList.add('correct');
+    score++;
+    var fb = document.getElementById('q-feedback');
+    fb.className = 'q-feedback correct';
+    fb.textContent = q.feedback;
+    fb.style.display = 'block';
+  } else {
+    opts[index].classList.add('wrong');
+    opts[q.correct].classList.add('reveal-correct');
+    var fb = document.getElementById('q-feedback');
+    fb.className = 'q-feedback wrong';
+    fb.textContent = q.feedback;
+    fb.style.display = 'block';
+  }
+ 
+  document.getElementById('q-next-btn').style.display = 'block';
+}
+ 
+function nextQuestion() {
+  current++;
+  if (current >= questions.length) {
+    showResult();
+  } else {
+    renderQuestion();
+  }
+}
+ 
+function showResult() {
+  document.getElementById('quiz-card').style.display = 'none';
+  document.getElementById('quiz-result').style.display = 'block';
+ 
+  var total = questions.length;
+  document.getElementById('result-score').textContent = score + '/' + total;
+ 
+  var titles = ['Keep exploring!', 'Solid start!', 'Nice work!', 'Great knowledge!', 'Cannabis law pro!'];
+  var msgs = [
+    'No worries — this stuff can get complicated. Read through our guide above and give it another shot.',
+    'You know the basics. Brush up on the Farm Bill and hemp rules and you\'ll ace it next time.',
+    'You\'re getting there! A couple more details and you\'ll be a hemp law expert.',
+    'Impressive! You clearly know your hemp law. Ready to put that knowledge to good use?',
+    'Perfect score! You know your stuff inside and out. Check out what Mood has to offer.'
+  ];
+ 
+  document.getElementById('result-title').textContent = titles[score];
+  document.getElementById('result-msg').textContent = msgs[score];
+}
+ 
+function restartQuiz() {
+  current = 0;
+  score = 0;
+  answered = false;
+  document.getElementById('quiz-result').style.display = 'none';
+  document.getElementById('quiz-card').style.display = 'block';
+  renderQuestion();
+}
+</script>
+ 
+</body>
+</html>
